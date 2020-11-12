@@ -37,12 +37,12 @@ Quick start
 
 4. Use to admin.py::
 
-   from django.contrib import admin
-   from history.admin import HistoryBlockAdmin
+    from django.contrib import admin
+    from history.admin import HistoryBlockAdmin
 
-   @admin.register(App)
-   class AppAdmin(HistoryBlockAdmin, admin.ModelAdmin):
-       ...
+    @admin.register(App)
+    class AppAdmin(HistoryBlockAdmin, admin.ModelAdmin):
+        ...
 
 5. Run ``python manage.py migrate`` to create the polls models.
 
