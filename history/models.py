@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from . import defaults, utils
-from ..helpers.models import CreatedDeletedModel, BaseConsumerAbstractModel, CreatedModel
+from .helpers import CreatedDeletedModel, BaseConsumerAbstractModel, CreatedModel
 
 User = get_user_model()
 
