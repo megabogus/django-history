@@ -35,9 +35,18 @@ Quick start
         ...
     }
 
-4. Run ``python manage.py migrate`` to create the polls models.
+4. Use to admin.py::
 
-5. Start the development server and visit http://127.0.0.1:8000/admin/
+   from django.contrib import admin
+   from history.admin import HistoryBlockAdmin
+
+   @admin.register(App)
+   class AppAdmin(HistoryBlockAdmin, admin.ModelAdmin):
+       ...
+
+5. Run ``python manage.py migrate`` to create the polls models.
+
+6. Start the development server and visit http://127.0.0.1:8000/admin/
    to create a history (you'll need the Admin app enabled).
 
-6. Visit http://127.0.0.1:8000/admin/history/action/ to participate in the all history.
+7. Visit http://127.0.0.1:8000/admin/history/action/ to participate in the all history.
