@@ -1,1 +1,1 @@
-default_app_config = 'apps.history.apps.HistoryConfig'
+default_app_config = 'history.apps.HistoryConfig'
