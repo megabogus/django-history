@@ -5,12 +5,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from . import defaults, utils
-from .helpers import CreatedDeletedModel, BaseConsumerAbstractModel, CreatedModel
 
 User = get_user_model()
 
 
-class Action(CreatedModel):
+class Action(models.Model):
     consumer_type = models.ForeignKey(
         ContentType,
         verbose_name=_("Consumer Type"),
@@ -32,6 +31,7 @@ class Action(CreatedModel):
     ip = models.CharField(_('IP адрес'), max_length=15, null=True)
     show_in_timeline = models.BooleanField(
         _('Показать на временной шкале'), default=True)
+    created_at = models.DateTimeField(_('создан'), auto_now_add=True)
 
     def is_rollback(self):
         return self.action_type == defaults.ACTION_ROLLBACK
