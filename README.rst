@@ -2,8 +2,6 @@
 History
 =======
 
-|build-status| |coverage| |license| |wheel| |pyversion| |pyimp| |ocbackerbadge| |ocsponsorbadge|
-
 History is a Django app to log change models fields
 
 Detailed documentation is in the "docs" directory.
@@ -21,21 +19,21 @@ Quick start
 
 2. Add middleware to your MIDDLEWARE::
 
-   MIDDLEWARE = [
+    MIDDLEWARE = [
         ...
         'history.middleware.ThreadLocals',
-   ]
+    ]
 
 3. Add models fields to your OBSERVED_FIELDS::
 
-   OBSERVED_FIELDS = {
+    OBSERVED_FIELDS = {
         'accounts.User':
                 (
                       'username', 'first_name', 'middle_name', 'last_name', 'gender', 'phone', 'email',
                       'photo', 'birthday',
                 ),
         ...
-   }
+    }
 
 4. Run ``python manage.py migrate`` to create the polls models.
 
