@@ -4,7 +4,7 @@ from django.db.models.signals import post_save, pre_delete
 
 
 class HistoryConfig(AppConfig):
-    name = 'history'
+    name = 'django_history'
     verbose_name = _('История изменений')
 
     def ready(self):

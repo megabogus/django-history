@@ -9,11 +9,11 @@ Detailed documentation is in the "docs" directory.
 Quick start
 -----------
 
-1. Add "history" to your INSTALLED_APPS setting like this::
+1. Add "django_history" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = [
         ...
-        'history',
+        'django_history',
         ...
     ]
 
@@ -21,7 +21,7 @@ Quick start
 
     MIDDLEWARE = [
         ...
-        'history.middleware.ThreadLocals',
+        'django_history.middleware.ThreadLocals',
     ]
 
 3. Add models fields to your OBSERVED_FIELDS::
@@ -38,15 +38,15 @@ Quick start
 4. Use to admin.py::
 
     from django.contrib import admin
-    from history.admin import HistoryBlockAdmin
+    from django_history.admin import HistoryBlockAdmin
 
     @admin.register(App)
     class AppAdmin(HistoryBlockAdmin, admin.ModelAdmin):
         ...
 
-5. Run ``python manage.py migrate`` to create the polls models.
+5. Run ``python manage.py migrate`` to create the history models.
 
 6. Start the development server and visit http://127.0.0.1:8000/admin/
    to create a history (you'll need the Admin app enabled).
 
-7. Visit http://127.0.0.1:8000/admin/history/action/ to participate in the all history.
+7. Visit http://127.0.0.1:8000/admin/django_history/action/ to participate in the all history.
