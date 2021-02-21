@@ -156,14 +156,11 @@ def merge(diffs):
 
                     if line.startswith('-'):
                         # Line removed.
-                        # XXX
                         assert text[start_old] == line[1:], \
                             "Deleted text didn't match: %s\n%s" % (
                                 text, line)
                         del text_new[start_new]
                         start_old += 1
-                        pass
-
                     elif line.startswith('+'):
                         # Line added.
                         text_new.insert(start_new, line[1:])
@@ -177,7 +174,7 @@ def merge(diffs):
                                 diff, (text[start_old], line, text))
                         start_old += 1
                         start_new += 1
-            except StopIteration:
+            except Exception as e:
                 line = None
         text = text_new
 
