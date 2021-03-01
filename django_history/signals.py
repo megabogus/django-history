@@ -55,7 +55,7 @@ def object_post_save(sender, **kwargs):
     try:
         _ignore_in_timeline = getattr(instance, '_ignore_in_timeline', False)
     except ValueError as e:
-        logger.info("Ignore in timeline: ", e)
+        logger.info("Ignore in timeline: {}".format(e))
         _ignore_in_timeline = False
 
     try:
@@ -64,7 +64,7 @@ def object_post_save(sender, **kwargs):
             action_type=action_type, profile=profile, ip=get_current_ip(),
             show_in_timeline=_ignore_in_timeline)
     except ValueError as e:
-        logger.warning("Value Error: ", e)
+        logger.warning("Value Error: {}".format(e))
         return
 
     if action_type == defaults.ACTION_CREATE:
@@ -110,7 +110,7 @@ def object_post_save(sender, **kwargs):
                 else:
                     last_date = ''
             except IndexError as e:
-                logger.warning("Last action: ", str(e))
+                logger.warning("Last action: {}".format(e))
                 last_date = ''
                 last_value = ''
 
