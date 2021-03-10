@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -31,7 +32,7 @@ class Action(models.Model):
     ip = models.CharField(_('IP адрес'), max_length=15, null=True)
     show_in_timeline = models.BooleanField(
         _('Показать на временной шкале'), default=True)
-    created_at = models.DateTimeField(_('создан'), auto_now_add=True)
+    created_at = models.DateTimeField(_('создан'), default=timezone.now)
 
     def is_rollback(self):
         return self.action_type == defaults.ACTION_ROLLBACK
