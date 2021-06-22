@@ -7,7 +7,7 @@ from .utils import observe
 (
     ACTION_CREATE, ACTION_EDIT, ACTION_DELETE, ACTION_ROLLBACK,
     ACTION_RENAME, ACTION_TRASH, ACTION_RESTORE
-) = range(1, 8)
+) = range(0, 7)
 
 ACTION_TYPES = (
     (ACTION_CREATE, _('Созданный объект')),
@@ -30,10 +30,6 @@ OBSERVED_FIELDS = getattr(
      })
 
 OBSERVED_FIELD_NAMES = list(set(itertools.chain.from_iterable(OBSERVED_FIELDS.values())))
-
-TIMELINE_FIELDS = {
-    observe('accounts.User', create=True): ('first_name', 'last_name', 'middle_name'),
-}
 
 TIMELINE_PAGE_DAYS = getattr(settings, 'TIMELINE_PAGE_DAYS', 7)
 

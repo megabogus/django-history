@@ -181,34 +181,10 @@ def merge(diffs):
     return u'\n'.join(line for line in text if line is not None)
 
 
-def to_unicode(value):
-    """
-    Convert data to unicode.
-    Unicode:
-    >>> to_unicode(u'foo')
-    u'foo'
-    String:
-    >>> to_unicode('bar')
-    u'bar'
-    Datetime:
-    >>> to_unicode(datetime.datetime(2010, 1, 2, 3, 4, 5))
-    u'02/01/2010 03:04'
-    Function:
-    >>> to_unicode(lambda: 'qwearst')
-    u'qwearst'
-    Integer:
-    >>> to_unicode(123)
-    u'123'
-    Boolean:
-    >>> to_unicode(True)
-    u'True'
-    None:
-    >>> to_unicode(None)
-    u'None'
-    """
+def to_string(value):
     if callable(value):
-        value = value
-
+        value = ', '.join([val.__str__() for val in value.all()])
+        return str(value)
     if isinstance(value, datetime.datetime):
         return f"{value.strftime('%Y-%m-%d %H:%M')}"
     elif isinstance(value, datetime.date):
@@ -221,29 +197,10 @@ def to_unicode(value):
         return f"{value}"
 
 
-def from_unicode(value, to_type):
-    """
-    Convert data from unicode.
-    Unicode:
-    >>> from_unicode(u'foo', unicode)
-    u'foo'
-    String:
-    >>> from_unicode(u'bar', str)
-    'bar'
-    Datetime:
-    >>> from_unicode(u'01/02/2010 03:04', datetime.datetime)
-    datetime.datetime(2010, 2, 1, 3, 4)
-    Integer:
-    >>> from_unicode(u'123', int)
-    123
-    Boolean:
-    >>> from_unicode(u'False', bool)
-    False
-    >>> from_unicode(u'True', bool)
-    True
-    """
+def from_string(value, to_type):
     if value is 'None':
         return None
+
     elif to_type:
         return value
     elif issubclass(to_type, str):

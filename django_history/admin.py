@@ -87,7 +87,8 @@ class DiffAdminInlines(admin.StackedInline):
 class ActionAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'profile', 'ip', 'diffs', 'created_at')
     readonly_fields = (
-        'consumer_type', 'consumer_pk', 'consumer', 'action_type', 'profile', 'rollback_to', 'ip', 'show_in_timeline'
+        'consumer_type', 'consumer_pk', 'consumer', 'action_type', 'profile', 'rollback_to', 'ip', 'show_in_timeline',
+        'created_at'
     )
     inlines = [DiffAdminInlines]
 

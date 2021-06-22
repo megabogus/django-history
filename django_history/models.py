@@ -27,7 +27,7 @@ class Action(models.Model):
     )
     rollback_to = models.ForeignKey(
         'Diff', null=True, related_name='rolled_back_from',
-        verbose_name=_('Откадить до'), on_delete=models.SET_NULL
+        verbose_name=_('Откатить до'), on_delete=models.SET_NULL
     )
     ip = models.CharField(_('IP адрес'), max_length=15, null=True)
     show_in_timeline = models.BooleanField(
@@ -57,7 +57,6 @@ class Diff(models.Model):
     field = models.CharField(
         max_length=255,
         verbose_name=_("Поле"),
-        choices=[(field, field) for field in defaults.OBSERVED_FIELD_NAMES],
         null=True, blank=True
     )
 

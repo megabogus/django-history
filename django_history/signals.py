@@ -2,6 +2,7 @@ import logging
 import datetime
 import difflib
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.admin.models import LogEntry
 from django.db import transaction
 from . import defaults, utils
 from .models import Diff, Action
@@ -21,14 +22,23 @@ def get_last_version(consumer_type, consumer_pk, field):
 
 
 @transaction.atomic
+def object_m2m_save(sender, **kwargs):
+    instance = kwargs.get('instance')
+    instance.save()
+
+
+@transaction.atomic
 def object_post_save(sender, **kwargs):
-    sender_name = '.'.join((sender._meta.app_label, sender._meta.object_name))
+    sender_name = f"{sender._meta.app_label}.{sender._meta.object_name}"
     instance = kwargs.get('instance')
     try:
         consumer_type = ContentType.objects.get_for_model(sender)
     except Exception as e:
+        logger.error(f"Content Type not found: {e}")
         return
+
     if hasattr(instance, '_action_type'):
+        action_type = instance._action_type
         delattr(instance, '_action_type')
     else:
         action_type = (
@@ -39,8 +49,7 @@ def object_post_save(sender, **kwargs):
         return
 
     timeline_observed = utils.is_observed(sender_name, action_type)
-    if not ((sender_name in defaults.OBSERVED_FIELDS) or
-            timeline_observed):
+    if not ((sender_name in defaults.OBSERVED_FIELDS) or timeline_observed):
         return
 
     profile = get_current_user()
@@ -71,9 +80,8 @@ def object_post_save(sender, **kwargs):
         instance._ignore_in_timeline = True
 
     fields = (
-        set(defaults.OBSERVED_FIELDS.get(sender_name, ())) |
-        set(defaults.TIMELINE_FIELDS.get(sender_name, ())
-            if timeline_observed else ()))
+        set(defaults.OBSERVED_FIELDS.get(sender_name, ()))
+    )
     if fields:
         consumer_name = f"{provider.consumer}"
 
@@ -97,7 +105,7 @@ def object_post_save(sender, **kwargs):
         else:
             last_value = ''
 
-        new_value = utils.to_unicode(getattr(instance, field))
+        new_value = utils.to_string(getattr(instance, field))
 
         if last_value != new_value:
             try:
@@ -116,7 +124,9 @@ def object_post_save(sender, **kwargs):
 
             patch = '\n'.join(difflib.unified_diff(
                 last_value.splitlines(), new_value.splitlines(),
-                consumer_name, consumer_name, lineterm=''))
+                consumer_name, consumer_name,
+                str(last_date), str(provider.created_at),
+                lineterm=''))
 
             if patch:
                 has_diff = True
