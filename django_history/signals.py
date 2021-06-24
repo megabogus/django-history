@@ -22,20 +22,8 @@ def get_last_version(consumer_type, consumer_pk, field):
 
 
 @transaction.atomic
-def object_m2m_save(sender, **kwargs):
+def _create_diff(sender_name, consumer_type, **kwargs):
     instance = kwargs.get('instance')
-    instance.save()
-
-
-@transaction.atomic
-def object_post_save(sender, **kwargs):
-    sender_name = f"{sender._meta.app_label}.{sender._meta.object_name}"
-    instance = kwargs.get('instance')
-    try:
-        consumer_type = ContentType.objects.get_for_model(sender)
-    except Exception as e:
-        logger.error(f"Content Type not found: {e}")
-        return
 
     if hasattr(instance, '_action_type'):
         action_type = instance._action_type
@@ -147,6 +135,32 @@ def object_post_save(sender, **kwargs):
 
     if not has_diff and action_type == defaults.ACTION_EDIT:
         provider.delete()
+
+
+def object_m2m_save(sender, **kwargs):
+    sender_name = f"{sender._meta.app_label}.{sender._meta.object_name.split('_')[0]}"
+    try:
+        consumer_type = ContentType.objects.get(
+            app_label=sender._meta.app_label,
+            model=sender._meta.object_name.split('_')[0].lower()
+        )
+    except Exception as e:
+        logger.error(f"Content Type not found: {e}")
+        return
+
+    _create_diff(sender_name, consumer_type, **kwargs)
+
+
+def object_post_save(sender, **kwargs):
+    sender_name = f"{sender._meta.app_label}.{sender._meta.object_name}"
+
+    try:
+        consumer_type = ContentType.objects.get_for_model(sender)
+    except Exception as e:
+        logger.error(f"Content Type not found: {e}")
+        return
+
+    _create_diff(sender_name, consumer_type, **kwargs)
 
 
 def object_pre_delete(sender, **kwargs):
