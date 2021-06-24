@@ -29,7 +29,7 @@ class Action(models.Model):
         'Diff', null=True, related_name='rolled_back_from',
         verbose_name=_('Откатить до'), on_delete=models.SET_NULL
     )
-    ip = models.CharField(_('IP адрес'), max_length=15, null=True)
+    ip = models.CharField(_('IP адрес'), max_length=255, null=True)
     show_in_timeline = models.BooleanField(
         _('Показать на временной шкале'), default=True)
     created_at = models.DateTimeField(_('создан'), default=timezone.now)
