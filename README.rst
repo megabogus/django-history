@@ -2,7 +2,7 @@
 History
 =======
 
-History is a Django app to log change models fields
+History is a Django app to log change model fields
 
 Detailed documentation is in the "docs" directory.
 
