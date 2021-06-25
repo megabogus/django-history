@@ -1,0 +1,146 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-25 06:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: src/django-history/django_history/admin.py:78
+#: src/django-history/django_history/admin.py:105
+#: src/django-history/django_history/templates/history/admin/list.html:25
+msgid "Изменения"
+msgstr "Changes"
+
+#: src/django-history/django_history/admin.py:83
+msgid "Название поля"
+msgstr "Field name"
+
+#: src/django-history/django_history/apps.py:8
+msgid "История изменений"
+msgstr "Change history"
+
+#: src/django-history/django_history/defaults.py:13
+msgid "Созданный объект"
+msgstr "Change history"
+
+#: src/django-history/django_history/defaults.py:14
+msgid "Отредактированный объект"
+msgstr "Edited object"
+
+#: src/django-history/django_history/defaults.py:15
+msgid "Удаленный объект"
+msgstr "Remote object"
+
+#: src/django-history/django_history/defaults.py:16
+msgid "отмена"
+msgstr "cancel"
+
+#: src/django-history/django_history/defaults.py:17
+msgid "Переименованный объект"
+msgstr "Renamed object"
+
+#: src/django-history/django_history/defaults.py:18
+msgid "Перемещено в корзину"
+msgstr "Moved to cart"
+
+#: src/django-history/django_history/defaults.py:19
+msgid "Восстановлен из корзины"
+msgstr "Recovered from recycle bin"
+
+#: src/django-history/django_history/models.py:16
+msgid "Consumer Type"
+msgstr ""
+
+#: src/django-history/django_history/models.py:20
+msgid "Consumer PK"
+msgstr ""
+
+#: src/django-history/django_history/models.py:24
+msgid "Тип действия"
+msgstr "Action type"
+
+#: src/django-history/django_history/models.py:26
+msgid "Профиль"
+msgstr "Profile"
+
+#: src/django-history/django_history/models.py:30
+msgid "Откатить до"
+msgstr "Roll back to"
+
+#: src/django-history/django_history/models.py:32
+msgid "IP адрес"
+msgstr "IP address"
+
+#: src/django-history/django_history/models.py:34
+msgid "Показать на временной шкале"
+msgstr "Show in timeline"
+
+#: src/django-history/django_history/models.py:35
+msgid "создан"
+msgstr "established"
+
+#: src/django-history/django_history/models.py:47
+msgid "действие"
+msgstr "action"
+
+#: src/django-history/django_history/models.py:48
+msgid "Действия"
+msgstr "Actions"
+
+#: src/django-history/django_history/models.py:55
+msgid "Версия"
+msgstr "Version"
+
+#: src/django-history/django_history/models.py:59
+msgid "Поле"
+msgstr "Field"
+
+#: src/django-history/django_history/models.py:122
+msgid "отличие"
+msgstr "difference"
+
+#: src/django-history/django_history/models.py:123
+msgid "Отличия"
+msgstr "Differences"
+
+#: src/django-history/django_history/templates/history/admin/list.html:6
+msgid "Home"
+msgstr ""
+
+#: src/django-history/django_history/templates/history/admin/list.html:10
+msgid "History"
+msgstr ""
+
+#: src/django-history/django_history/templates/history/admin/list.html:22
+msgid "Действие"
+msgstr "Action"
+
+#: src/django-history/django_history/templates/history/admin/list.html:23
+msgid "User"
+msgstr ""
+
+#: src/django-history/django_history/templates/history/admin/list.html:24
+msgid "IP"
+msgstr ""
+
+#: src/django-history/django_history/templates/history/admin/list.html:26
+msgid "Дата и время"
+msgstr "date and time"
+
+#: src/django-history/django_history/templates/history/admin/list.html:42
+msgid ""
+"This object doesn't have a change history. It probably wasn't added via this "
+"admin site."
+msgstr ""
