@@ -32,7 +32,6 @@ class HistoryBlockAdmin(object):
             for inline in self.inlines:
                 for f in inline.model._meta.local_fields:
                     if f.remote_field and f.remote_field.model == model:
-                        logger.info(f"{f.name}")
                         qs = {f"{f.name}_id": object_id}
                         ids = [obj.pk for obj in inline.model.objects.filter(**qs)]
                         action_list = itertools.chain(

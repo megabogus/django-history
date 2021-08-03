@@ -7,6 +7,7 @@ from django.db import transaction
 from . import defaults, utils
 from .models import Diff, Action
 from .middleware import get_current_ip, get_current_user
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -21,120 +22,129 @@ def get_last_version(consumer_type, consumer_pk, field):
         return 0
 
 
-@transaction.atomic
-def _create_diff(sender_name, consumer_type, **kwargs):
-    instance = kwargs.get('instance')
+class CreateDiff(threading.Thread):
+    def __init__(self, sender_name, consumer_type, instance=None, created=None, profile=None, ip=None, **kwargs):
+        self.sender_name = sender_name
+        self.consumer_type = consumer_type
+        self.instance = instance
+        self.created = created
+        self.profile = profile
+        self.ip = ip
+        super(CreateDiff, self).__init__(**kwargs)
 
-    if hasattr(instance, '_action_type'):
-        action_type = instance._action_type
-        delattr(instance, '_action_type')
-    else:
-        action_type = (
-            defaults.ACTION_CREATE if kwargs.get('created') else
-            defaults.ACTION_EDIT)
+    @transaction.atomic
+    def run(self):
 
-    if action_type == defaults.ACTION_ROLLBACK:
-        return
+        instance = self.instance
 
-    timeline_observed = utils.is_observed(sender_name, action_type)
-    if not ((sender_name in defaults.OBSERVED_FIELDS) or timeline_observed):
-        return
-
-    profile = get_current_user()
-
-    if action_type == defaults.ACTION_EDIT:
-        if Action.objects.filter(
-            consumer_type=consumer_type, consumer_pk=instance.pk,
-            action_type__in=(defaults.ACTION_CREATE, defaults.ACTION_EDIT),
-            created_at__gte=datetime.datetime.now()
-        ).exists():
-            instance._ignore_in_timeline = True
-    try:
-        _ignore_in_timeline = getattr(instance, '_ignore_in_timeline', False)
-    except ValueError as e:
-        logger.info("Ignore in timeline: {}".format(e))
-        _ignore_in_timeline = False
-
-    try:
-        provider = Action.objects.create(
-            consumer_type=consumer_type, consumer_pk=instance.pk,
-            action_type=action_type, profile=profile, ip=get_current_ip(),
-            show_in_timeline=_ignore_in_timeline)
-    except ValueError as e:
-        logger.warning("Value Error: {}".format(e))
-        return
-
-    if action_type == defaults.ACTION_CREATE:
-        instance._ignore_in_timeline = True
-
-    fields = (
-        set(defaults.OBSERVED_FIELDS.get(sender_name, ()))
-    )
-    if fields:
-        consumer_name = f"{provider.consumer}"
-
-    has_diff = False
-
-    for field in fields:
-        last_version = get_last_version(
-            consumer_type, instance.pk, field)
-
-        if last_version > 0:
-            diffs = Diff.objects.filter(
-                action__consumer_type=consumer_type,
-                action__consumer_pk=instance.pk, field=field,
-                version=last_version)
-            if len(diffs) > 1:
-                for diff in diffs[1:]:
-                    diff.delete()
-            last_diff = diffs[0]
-            last_value = last_diff.get_version_text()
-
+        if hasattr(instance, '_action_type'):
+            action_type = instance._action_type
+            delattr(instance, '_action_type')
         else:
-            last_value = ''
+            action_type = (
+                defaults.ACTION_CREATE if self.created else
+                defaults.ACTION_EDIT)
 
-        new_value = utils.to_string(getattr(instance, field))
+        if action_type == defaults.ACTION_ROLLBACK:
+            return
 
-        if last_value != new_value:
-            try:
-                last_action = Action.objects.filter(
-                    diff__version=last_version, diff__field=field,
-                    consumer_type=consumer_type,
-                    consumer_pk=instance.pk).first()
-                if last_action:
-                    last_date = last_action.created_at
-                else:
-                    last_date = ''
-            except IndexError as e:
-                logger.warning("Last action: {}".format(e))
-                last_date = ''
+        timeline_observed = utils.is_observed(self.sender_name, action_type)
+        if not ((self.sender_name in defaults.OBSERVED_FIELDS) or timeline_observed):
+            return
+
+        if action_type == defaults.ACTION_EDIT:
+            if Action.objects.filter(
+                consumer_type=self.consumer_type, consumer_pk=instance.pk,
+                action_type__in=(defaults.ACTION_CREATE, defaults.ACTION_EDIT),
+                created_at__gte=datetime.datetime.now()
+            ).exists():
+                instance._ignore_in_timeline = True
+        try:
+            _ignore_in_timeline = getattr(instance, '_ignore_in_timeline', False)
+        except ValueError as e:
+            logger.info("Ignore in timeline: {}".format(e))
+            _ignore_in_timeline = False
+
+        try:
+            provider = Action.objects.create(
+                consumer_type=self.consumer_type, consumer_pk=instance.pk,
+                action_type=action_type, profile=self.profile, ip=self.ip,
+                show_in_timeline=_ignore_in_timeline)
+        except ValueError as e:
+            logger.warning("Value Error: {}".format(e))
+            return
+
+        if action_type == defaults.ACTION_CREATE:
+            instance._ignore_in_timeline = True
+
+        fields = (
+            set(defaults.OBSERVED_FIELDS.get(self.sender_name, ()))
+        )
+        if fields:
+            consumer_name = f"{provider.consumer}"
+
+        has_diff = False
+
+        for field in fields:
+            last_version = get_last_version(
+                self.consumer_type, instance.pk, field)
+
+            if last_version > 0:
+                diffs = Diff.objects.filter(
+                    action__consumer_type=self.consumer_type,
+                    action__consumer_pk=instance.pk, field=field,
+                    version=last_version)
+                if len(diffs) > 1:
+                    for diff in diffs[1:]:
+                        diff.delete()
+                last_diff = diffs[0]
+                last_value = last_diff.get_version_text()
+
+            else:
                 last_value = ''
 
-            patch = '\n'.join(difflib.unified_diff(
-                last_value.splitlines(), new_value.splitlines(),
-                consumer_name, consumer_name,
-                str(last_date), str(provider.created_at),
-                lineterm=''))
+            new_value = utils.to_string(getattr(instance, field))
 
-            if patch:
-                has_diff = True
-            else:
-                continue
+            if last_value != new_value:
+                try:
+                    last_action = Action.objects.filter(
+                        diff__version=last_version, diff__field=field,
+                        consumer_type=self.consumer_type,
+                        consumer_pk=instance.pk).first()
+                    if last_action:
+                        last_date = last_action.created_at
+                    else:
+                        last_date = ''
+                except IndexError as e:
+                    logger.warning("Last action: {}".format(e))
+                    last_date = ''
+                    last_value = ''
 
-            new_version = last_version + 1
-            diff = Diff.objects.create(
-                action=provider, version=new_version, field=field,
-                change=patch)
+                patch = '\n'.join(difflib.unified_diff(
+                    last_value.splitlines(), new_value.splitlines(),
+                    consumer_name, consumer_name,
+                    str(last_date), str(provider.created_at),
+                    lineterm=''))
 
-            # Make sure that we can get latest version without errors.
-            diff = Diff.objects.get(
-                action__consumer_type=consumer_type,
-                action__consumer_pk=instance.pk, field=field,
-                version=new_version)
-            diff.get_version_text()
+                if patch:
+                    has_diff = True
+                else:
+                    continue
 
-    if not has_diff and action_type == defaults.ACTION_EDIT:
-        provider.delete()
+                new_version = last_version + 1
+                diff = Diff.objects.create(
+                    action=provider, version=new_version, field=field,
+                    change=patch)
+
+                # Make sure that we can get latest version without errors.
+                diff = Diff.objects.get(
+                    action__consumer_type=self.consumer_type,
+                    action__consumer_pk=instance.pk, field=field,
+                    version=new_version)
+                diff.get_version_text()
+
+        if not has_diff and action_type == defaults.ACTION_EDIT:
+            provider.delete()
 
 
 def object_m2m_save(sender, **kwargs):
@@ -148,7 +158,10 @@ def object_m2m_save(sender, **kwargs):
         logger.error(f"Content Type not found: {e}")
         return
 
-    _create_diff(sender_name, consumer_type, **kwargs)
+    CreateDiff(
+        sender_name, consumer_type, instance=kwargs.get('instance'), created=kwargs.get('created'),
+        profile=get_current_user(), ip=get_current_ip()
+    ).start()
 
 
 def object_post_save(sender, **kwargs):
@@ -160,7 +173,10 @@ def object_post_save(sender, **kwargs):
         logger.error(f"Content Type not found: {e}")
         return
 
-    _create_diff(sender_name, consumer_type, **kwargs)
+    CreateDiff(
+        sender_name, consumer_type, instance=kwargs.get('instance'), created=kwargs.get('created'),
+        profile=get_current_user(), ip=get_current_ip()
+    ).start()
 
 
 def object_pre_delete(sender, **kwargs):
