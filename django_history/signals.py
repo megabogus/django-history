@@ -135,12 +135,6 @@ class CreateDiff(threading.Thread):
                 diff = Diff.objects.create(
                     action=provider, version=new_version, field=field,
                     change=patch)
-
-                # Make sure that we can get latest version without errors.
-                diff = Diff.objects.get(
-                    action__consumer_type=self.consumer_type,
-                    action__consumer_pk=instance.pk, field=field,
-                    version=new_version)
                 diff.get_version_text()
 
         if not has_diff and action_type == defaults.ACTION_EDIT:
