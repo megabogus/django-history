@@ -132,10 +132,16 @@ class CreateDiff(threading.Thread):
                     continue
 
                 new_version = last_version + 1
-                diff = Diff.objects.create(
-                    action=provider, version=new_version, field=field,
-                    change=patch)
-                diff.get_version_text()
+
+                if not Diff.objects.filter(
+                    action__consumer_type=self.consumer_type,
+                    action__consumer_pk=instance.pk, field=field,
+                    version=new_version).exists():
+
+                    diff = Diff.objects.create(
+                        action=provider, version=new_version, field=field,
+                        change=patch)
+                    diff.get_version_text()
 
         if not has_diff and action_type == defaults.ACTION_EDIT:
             provider.delete()

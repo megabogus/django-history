@@ -32,7 +32,7 @@ class Action(models.Model):
     ip = models.CharField(_('IP адрес'), max_length=255, null=True)
     show_in_timeline = models.BooleanField(
         _('Показать на временной шкале'), default=True)
-    created_at = models.DateTimeField(_('создан'), default=timezone.now)
+    created_at = models.DateTimeField(_('создан'), auto_now_add=True,)
 
     def is_rollback(self):
         return self.action_type == defaults.ACTION_ROLLBACK
